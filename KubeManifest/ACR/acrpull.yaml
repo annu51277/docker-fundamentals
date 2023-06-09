@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acrdemo2ss-deployment
+  labels:
+    app: acrdemo2ss
+  namespace: udemy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: acrdemo2ss
+  template:
+    metadata:
+      labels:
+        app: acrdemo2ss
+    spec:
+      containers:
+        - name: acrdemo2ss 
+          image: acrforaksdemo512.azurecr.io/app1/kube-nginx-acr:v1   # Update Image Name 
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+            
+          resources:
+            limits: 
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+
+      imagePullSecrets:   # Update Image Pull Secret Name we creted
+                - name: acrdemo2ss-secret
+
+
+
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                 - key: type
+                   operator: In
+                   values:
+                    - virtual-kubelet
+                    #- antarctica-west1
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key:  kubernetes.io/hostname
+                operator: In
+                values:
+                - virtual-node-aci-linux
+      
+      tolerations:
+        - key: "virtual-kubelet.io/provider"
+          operator: "Exists"
+        - key: "azure"
+          effect: "NoSchedule"
+        - key:  "node.kubernetes.io/unreachable"
+          effect: "NoSchedule"
+
+        

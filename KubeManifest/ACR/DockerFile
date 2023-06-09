@@ -1,0 +1,15 @@
+FROM nginx
+COPY index.html /usr/share/nginx/html
+
+
+#C:\Users\ansar>az ad sp create-for-rbac --name SVC_AKS_UDEMY_DEMO --scopes %ACR_REGISTRY_ID% --role acrpull --query password --output tsv
+#Found an existing application instance: (id) 3cbe6903-f030-46bf-a6c7-8cb7fd69c104. We will patch it.
+#Creating 'acrpull' role assignment under scope '/subscriptions/2ede13cf-4715-42c5-94aa-8cf17722a490/resourceGroups/aks-rg2/providers/Microsoft.ContainerRegistry/registries/acrforaksdemo512'
+#The output includes credentials that you must protect. Be sure that you do not include these credentials in your code or check the credentials into your source control. For more information, see https://aka.ms/azadsp-cli
+#BOm8Q~nTDRDfCLBhUJsHxtVEk~EtW2kX31IL-aPz
+
+#C:\Users\ansar>az ad sp list --display-name SVC_AKS_UDEMY_DEMO --query [].appId --output tsv
+#0ae6e649-7711-4868-bda4-a05637f7b9aa
+
+
+#{"auths": {"acrforaksdemo512.azurecr.io":{"username":"0ae6e649-7711-4868-bda4-a05637f7b9aa","password":"BOm8Q~nTDRDfCLBhUJsHxtVEk~EtW2kX31IL-aPz"}}}
