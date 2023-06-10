@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: annudockeracr 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: annudockeracr
+  template:
+    metadata:
+      labels:
+        app: annudockeracr 
+    spec:
+      containers:
+        - name: annudockeracr 
+          image: acrforaksdemo512.azurecr.io/annudockeracr
+          ports:
+          - containerPort: 80
