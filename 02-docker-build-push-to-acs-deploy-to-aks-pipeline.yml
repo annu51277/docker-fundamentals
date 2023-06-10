@@ -12,9 +12,9 @@ variables:
 
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '12073e69-4495-4016-a02b-0a72f8ade8ff'
-  imageRepository: 'app3version3'
+  imageRepository: 'newversionapp3'
   containerRegistry: 'acrforaksdemo512.azurecr.io'
-  dockerfilePath: '**/KubeManifest/ACR/DockerFile'
+  dockerfilePath: '$(Build.SourcesDirectory)/KubeManifest/ACR/DockerFile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'acrforaksdemo5121929b5fe-auth'
 
