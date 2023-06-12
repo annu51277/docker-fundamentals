@@ -1,0 +1,87 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  tag: $(Build.BuildId)
+  dockerRegistryServiceConnection: '549e335b-5435-4047-9764-45b53f757a16'
+  imageRepository: 'mangoseason-2023'
+  containerRegistry: 'acrforaksdemo512.azurecr.io'
+  imagePullSecret: mangosecret
+
+stages:
+  - stage: Build_Docker_Images
+    displayName: Push_Docker_images_ACR
+    pool:
+      name: Default
+    jobs:
+      - job: Job_Push_Docker_images
+        displayName: Job_Docker_Push
+        steps:           
+        - task: Docker@2
+          inputs:
+            containerRegistry: $(dockerRegistryServiceConnection)
+            repository: $(imageRepository)
+            command: 'buildAndPush'
+            Dockerfile: '$(System.DefaultWorkingDirectory)/KubeManifest/ACR/DockerFile'
+            tags: |
+              $(tag)
+      
+        #- task: CopyFiles@2
+          #inputs:
+           # targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'drop'
+            publishLocation: 'Container'
+        
+
+  - stage: Deploy
+    displayName: Deploy stage
+    dependsOn: Build_Docker_Images
+
+    jobs:
+    - deployment: Deploy
+      displayName: Deploy
+      pool:
+        name: Default
+      environment: 'annu51277undemygithub-1453.default'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: KubernetesManifest@0
+              displayName: Create imagePullSecret
+              inputs:
+                action: createSecret
+                secretName: $(imagePullSecret)
+                dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+
+            - task: KubernetesManifest@0
+              displayName: Deploy to Kubernetes cluster
+              inputs:
+                action: deploy
+                manifests: |
+                  $(Pipeline.Workspace)/manifests/deployment.yml
+                  $(Pipeline.Workspace)/manifests/service.yml
+                imagePullSecrets: |
+                  $(imagePullSecret)
+                containers: |
+                  $(containerRegistry)/$(imageRepository):$(tag)
+              
+
+#pool:
+  #vmImage: ubuntu-latest
